@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Recognition Model</title>
+    <style>
+
+        h1 {
+            text-align: center;
+            margin: 70px 0;
+            color: rgb(23, 6, 6);
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #DFD2BF;
+            color: #1b0707;
+            margin: 20;
+            padding: 20;
+        }
+
+        div {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #0f7774;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #063b17;
+        }
+
+        input[type="file"] {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #label-container div {
+            margin-top: 20px;
+            background-color: #f8f8f8;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        #loadingStatus {
+            font-weight: bold;
+            text-align: center;
+        }
+
+        #home_buttons a {
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+
+</head>
+
+<body>
+    <a id="title" href="1_Home-Page.html"><h1> Image Recognition Model</h1></a>
+    <div id="loadingStatus">Would you like to upload a file or use the webcam</div>
+    <div>
+        <div id="imageContainer">
+            <a href="2_Image-Upload.html">Upload an Image</a>
+        </div>
+        <div id="imageContainer">
+            <a href="3_Image-Webcam.html">Use the Webcam</a>
+        </div>
+    </div>
+    
+
+</body>

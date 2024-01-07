@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Recognition Model</title>
+    <style>
+
+        h1 {
+            text-align: center;
+            margin: 70px 0;
+            color: rgb(23, 6, 6);
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #DFD2BF;
+            color: #1b0707;
+            margin: 20;
+            padding: 20;
+        }
+
+        div {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #0f7774;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #063b17;
+        }
+
+        input[type="file"] {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #label-container div {
+            margin-top: 20px;
+            background-color: #f8f8f8;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        #loadingStatus {
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+
+</head>
+<body>
+    <a id="title" href="1_Home-Page.html"><h1> Image Recognition Model</h1></a>
+    <!-- <h2 style="margin-top: 80px; margin-bottom: 80px;"> Image Recognition Model</h2> -->
+
+    <div id="loadingStatus">Textiles </div>
+    <div>
+        <label for="imageUpload" id="fileInputLabel" class="file-label">Please upload your samples </label>
+        <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+        <img id="imagePreview" src="" alt="Image Preview" style="display: none;">
+        <div id="imageContainer"></div>
+
+    </div>
+    <div id="label-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <script type="text/javascript">
+        // the link to your model provided by Teachable Machine export panel
+        const URL = "https://teachablemachine.withgoogle.com/models/oitU_4zp_/";
+
+        let model, labelContainer, maxPredictions;
+
+        // Load the model automatically when the page is loaded
+        window.onload = async function() {
+            await init();
+            document.getElementById("imageUpload").disabled = false;
+        }
+
+        async function init() {
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
+
+            const imageUpload = document.getElementById("imageUpload");
+            imageUpload.addEventListener("change", handleImageUpload);
+
+            labelContainer = document.getElementById("label-container");
+            for (let i = 0; i < maxPredictions; i++) {
+                labelContainer.appendChild(document.createElement("div"));
+            }
+        }
+
+        async function handleImageUpload() {
+            const imageUpload = document.getElementById("imageUpload");
+            const file = imageUpload.files[0];
+
+            if (!file) return;
+
+            const dataURL = await readFileAsDataURL(file);
+            const canvas = await loadImageToCanvas(dataURL);
+
+            const maxWidth = 340;
+            const maxHeight = 270;
+
+            let newWidth, newHeight;
+
+            // Calculate the new dimensions while preserving the aspect ratio
+            if (canvas.width / maxWidth > canvas.height / maxHeight) {
+                newWidth = maxWidth;
+                newHeight = (canvas.height / canvas.width) * maxWidth;
+            } else {
+                newHeight = maxHeight;
+                newWidth = (canvas.width / canvas.height) * maxHeight;
+            }
+
+            // Create a new canvas with the adjusted dimensions
+            const resizedCanvas = document.createElement("canvas");
+            resizedCanvas.width = newWidth;
+            resizedCanvas.height = newHeight;
+            const ctx = resizedCanvas.getContext("2d");
+            ctx.drawImage(canvas, 0, 0, newWidth, newHeight);
+
+            // Create an <img> element and set its source to the resized canvas
+            const imageElement = document.createElement("img");
+            imageElement.src = resizedCanvas.toDataURL();
+
+            // Set the maximum width and height of the <img> element to fit within the box
+            imageElement.style.maxWidth = "100%";
+            imageElement.style.maxHeight = "100%";
+
+            // Append the <img> element to a container on the page
+            const imageContainer = document.getElementById("imageContainer");
+            imageContainer.innerHTML = ""; // Clear any previous content
+            imageContainer.appendChild(imageElement);
+
+            const prediction = await model.predict(resizedCanvas);
+
+            for (let i = 0; i < maxPredictions; i++) {
+                const classPrediction =
+                    prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+                labelContainer.childNodes[i].innerHTML = classPrediction;
+            }
+        }
+
+
+
+
+
+        function readFileAsDataURL(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function loadImageToCanvas(dataURL) {
+            return new Promise((resolve) => {
+                const image = new Image();
+                image.src = dataURL;
+                image.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    canvas.width = 200;
+                    canvas.height = 200;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(image, 0, 0, 200, 200);
+                    resolve(canvas);
+                };
+            });
+        }
+    </script>
+</body>
+</html>
+
