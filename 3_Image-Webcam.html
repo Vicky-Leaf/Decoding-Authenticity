@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>/Use the Webcam</title>
+    <style>
+
+        #logoImage {
+            margin-top: 20px;      
+            margin-bottom: -20px; /* Reduce bottom margin of the image */
+       }
+
+         h1 {
+            text-align: center;
+            margin: 50px 0;
+            color: rgb(23, 6, 6);
+            background-color: #b6dbd0;
+         }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #b6dbd0;
+            color: #1b0707;
+            margin: 20;
+            padding: 50;
+        }
+
+        div {
+            max-width: 1000px;
+            margin: 60px auto;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            background-color: #65346d;
+        }
+
+        body {
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        button {
+            display: inline-block;
+            background-color: #65346d;
+            color: #f1f7f6;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 18px;
+            margin: auto; 
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #063b17;
+        }
+
+        #label-container div {
+            margin-top: 40px;
+            background-color: #f6f3f3;
+            padding: 20px;
+            font-size: 18px;
+            border: 1px solid #e71616;
+            border-radius: 5px;
+        }
+
+        #loadingStatus {
+            font-family: 'Arial', sans-serif;
+            margin-top: 60px;
+            font-weight: bold;
+            text-align: center;
+            background-color: #bec7e7;
+            background-color: #b6dbd0;
+            border: 1px solid #e71616;
+        }
+
+        #buttons-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #buttons-container button {
+            margin: 0 50px;
+            padding: 10px 20px;
+            background-color: #aea7c7;
+            color: #f1f7f6;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 18px;
+        }
+
+        #buttons-container button:hover {
+            background-color: #b6dbd0;
+        }   
+        
+    </style>
+
+</head>
+<body>
+        <img src="/Users/wangshuo/Desktop/Iteration.webflow/images/website-logo.png" width="50" height="50" id="logoImage">
+        <a id="title" href="/Users/wangshuo/Desktop/Iteration.webflow/js/1_Home-Page.html"><h1> IKAT Identification Model</h1></a>
+        <div id="loadingStatus">Scan through your Webcam. </div>
+        <button type="button" onclick="init()">Start</button>
+        <div id="webcam-container"></div>
+        <div id="label-container"></div>
+        <div id="buttons-container">
+            <button onclick="buttonAction1()">Save Results</button>
+            <button onclick="buttonAction2()">Know More</button>
+            <button onclick="buttonAction3()">Contact</button>
+    </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+        <script type="text/javascript">
+    // More API functions here:
+    // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+
+    // the link to your model provided by Teachable Machine export panel
+    const URL = "https://teachablemachine.withgoogle.com/models/A5WaDTgEe/";
+
+    let model, webcam, labelContainer, maxPredictions;
+
+    // Load the image model and setup the webcam
+    async function init() {
+        const modelURL = URL + "model.json";
+        const metadataURL = URL + "metadata.json";
+
+        // load the model and metadata
+        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+        // or files from your local hard drive
+        // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+
+        // Convenience function to setup a webcam
+        const flip = true; // whether to flip the webcam
+        webcam = new tmImage.Webcam(400, 400, flip); // width, height, flip
+        await webcam.setup(); // request access to the webcam
+        await webcam.play();
+        window.requestAnimationFrame(loop);
+
+        // append elements to the DOM
+        document.getElementById("webcam-container").appendChild(webcam.canvas);
+        labelContainer = document.getElementById("label-container");
+        for (let i = 0; i < maxPredictions; i++) { // and class labels
+            labelContainer.appendChild(document.createElement("div"));
+        }
+    }
+
+    async function loop() {
+        webcam.update(); // update the webcam frame
+        await predict();
+        window.requestAnimationFrame(loop);
+    }
+
+    // run the webcam image through the image model
+    async function predict() {
+        // predict can take in an image, video or canvas html element
+        const prediction = await model.predict(webcam.canvas);
+        for (let i = 0; i < maxPredictions; i++) {
+            const classPrediction =
+                prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+            labelContainer.childNodes[i].innerHTML = classPrediction;
+        }
+    }
+
+    function buttonAction1() {
+            alert('Saved.');
+    // Add your code for button 1 action
+        }
+
+        function buttonAction2() {
+            window.location.href = "file:///Users/wangshuo/Desktop/Iteration.webflow/licensing-copy-2.html";
+}
+    // Add your code for button 2 action
+
+
+         function buttonAction3() {
+             alert('Thank you for contacting.');
+    // Add your code for button 3 action
+        }
+
+
+</script>
+
+

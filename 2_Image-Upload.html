@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>/Upload the Image</title>
+    <style>
+
+        #logoImage {
+            margin-top: 20px;     
+            margin-bottom: -20px; /* Reduce bottom margin of the image */
+        }
+
+        h1 {
+            text-align: center;
+            margin: 50px 0;
+            color: rgb(23, 6, 6);
+         }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #b6dbd0;
+            color: #1b0707;
+            margin: 40;
+            padding: 20;
+        }
+
+        #subtitle {
+            font-weight: bold;
+            text-align: center;
+            background-color: #b6dbd0;
+            border: 1px solid #e71616;
+        }
+
+        div {
+            max-width: 1000px;
+            margin: 60px auto;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            background-color: #65346d;
+        }
+
+        body {
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        button {
+            display: inline-block;
+            background-color: #aea7c7;
+            color: #f1f7f6;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 18px;
+            margin: auto; 
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #b6dbd0;
+        }
+
+        #loadingIndicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+
+        #imageContainer {
+            width: 300px; /* Adjusted width of the image container */
+            height: 300px; /* Adjusted height of the image container */
+            margin-top: 20px; /* Optional: Add some top margin */
+            background-color: #fff;
+            position: relative;
+        }
+
+
+        #resultTitle {
+            margin-top: 20px; /* Adjusted top margin for spacing */
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 30px;
+            color: #063b17;
+            background-color: #f5f5f8;
+            border: 1px solid #da1616;
+            padding: 10px 20px; /* Padding around the text */
+            border-radius: 8px; /* Rounded corners */
+            display: inline-block;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #resultContainer {
+            margin-bottom: 20px; /* Adjusted margin-bottom for spacing to label-container */
+            background-color: #aea7c7; /* Background color for result container */
+            padding: 10px; /* Optional: Add padding for a visual separation */
+            border-radius: 8px; /* Optional: Add rounded corners */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle box shadow */
+        }
+
+        input[type="file"] {
+            margin-top: 40px;
+            padding: 10px;
+            border: 1px solid #da1616;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #label-container div {
+            margin-top: 40px;
+            background-color: #f6f3f3;
+            padding: 20px;
+            border: 1px solid #e71616;
+            border-radius: 5px;
+        }
+
+
+        #buttons-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #buttons-container button {
+            margin: 0 50px;
+            padding: 10px 20px;
+            background-color: #aea7c7;
+            color: #f1f7f6;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 18px;
+        }
+
+        #buttons-container button:hover {
+            background-color: #b6dbd0;
+        }   
+        
+    </style>
+
+</head>
+<body>
+    <img src="/Users/wangshuo/Desktop/Iteration.webflow/images/website-logo.png" width="50" height="50" id="logoImage">
+    <a id="title" href="/Users/wangshuo/Desktop/Iteration.webflow/js/1_Home-Page.html"><h1> IKAT Identification Model</h1></a>
+    <!-- <h2 style="margin-top: 80px; margin-bottom: 80px;"> Image Recognition Model</h2> -->
+
+    <div id="subtitle">Choose samples from your file. </div>
+    <div>
+        <button onclick="document.getElementById('imageUpload').click()">Click</button>
+        <label for="imageUpload" id="fileInputLabel" class="file-label" style="display: none;"></label>
+        <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+        <img id="imagePreview" src="" alt="Image Preview" style="display: none;">
+        <div id="imageContainer"></div>
+        <div id="loadingIndicator">Loading...</div>
+    </div>
+        
+        <div id="resultContainer">
+            <div id="resultTitle">Result</div>
+            <div id="label-container"  class="label-container"></div>
+            <div id="buttons-container">
+                <button onclick="buttonAction1()">Save Results</button>
+                <button onclick="buttonAction2()">Know More</button>
+                <button onclick="buttonAction3()">Contact</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <script type="text/javascript">
+        // the link to your model provided by Teachable Machine export panel
+        const URL = "https://teachablemachine.withgoogle.com/models/ax_sNUkLE/";
+
+        let model, labelContainer, maxPredictions;
+        let resizedCanvas;
+
+        // Load the model automatically when the page is loadeds
+        window.onload = async function() {
+            await init();
+            document.getElementById("imageUpload").disabled = false;
+        }
+
+        async function init() {
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
+
+            const imageUpload = document.getElementById("imageUpload");
+            imageUpload.addEventListener("change", handleImageUpload);
+
+            labelContainer = document.getElementById("label-container");
+            for (let i = 0; i < maxPredictions; i++) {
+                labelContainer.appendChild(document.createElement("div"));
+            }
+        }
+
+        async function handleImageUpload() {
+    const imageUpload = document.getElementById("imageUpload");
+    const file = imageUpload.files[0];
+
+    if (!file) return;
+
+    const loadingIndicator = document.getElementById("loadingIndicator");
+    const dataURL = await readFileAsDataURL(file);
+    const canvas = await loadImageToCanvas(dataURL);
+    
+    loadingIndicator.style.display = "block";
+
+    // Create an <img> element and set its source to the resized canvas
+    const imageElement = document.createElement("img");
+
+    const maxWidth = 340;
+    const maxHeight = 270;
+
+    let newWidth, newHeight;
+
+    // Calculate the new dimensions while preserving the aspect ratio
+    if (canvas.width / maxWidth > canvas.height / maxHeight) {
+        newWidth = maxWidth;
+        newHeight = (canvas.height / canvas.width) * maxWidth;
+    } else {
+        newHeight = maxHeight;
+        newWidth = (canvas.width / canvas.height) * maxHeight;
+    }
+
+    // Create a new canvas with the adjusted dimensions
+    resizedCanvas = document.createElement("canvas");
+    resizedCanvas.width = newWidth;
+    resizedCanvas.height = newHeight;
+    const ctx = resizedCanvas.getContext("2d");
+    ctx.drawImage(canvas, 0, 0, newWidth, newHeight);
+
+    imageElement.onload = async function () {
+        // Append the <img> element to a container on the page
+        const imageContainer = document.getElementById("imageContainer");
+        imageContainer.innerHTML = ""; // Clear any previous content
+        imageContainer.appendChild(imageElement);
+
+        const prediction = await model.predict(resizedCanvas);
+
+        for (let i = 0; i < maxPredictions; i++) {
+            const classPrediction =
+                prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+            labelContainer.childNodes[i].innerHTML = classPrediction;
+        }
+
+        // Hide the loading indicator after the image has loaded
+        loadingIndicator.style.display = "none";
+    };
+
+    // Set the source of the image element
+    imageElement.src = resizedCanvas.toDataURL();
+}
+
+
+
+        function readFileAsDataURL(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function loadImageToCanvas(dataURL) {
+            return new Promise((resolve) => {
+                const image = new Image();
+                image.src = dataURL;
+                image.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    canvas.width = 200;
+                    canvas.height = 200;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(image, 0, 0, 200, 200);
+                    resolve(canvas);
+                };
+            });
+        }
+
+        function buttonAction1() {
+            alert('Saved.');
+    // Add your code for button 1 action
+        }
+
+        function buttonAction2() {
+            window.location.href = "file:///Users/wangshuo/Desktop/Iteration.webflow/licensing-copy-2.html";
+}
+    // Add your code for button 2 action
+
+
+         function buttonAction3() {
+             alert('Thank you for contacting.');
+    // Add your code for button 3 action
+        }
+
+    
+        
+    </script>
+</body>
+</html>
+

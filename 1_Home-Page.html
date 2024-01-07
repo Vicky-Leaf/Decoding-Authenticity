@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IKAT Identification Model</title>
+    <style>
+
+        #logoImage {
+                 margin-bottom: -60px; /* Reduce bottom margin of the image */
+       }
+
+        h1 {
+            text-align: center;
+            margin: 90px 0;
+            color: rgb(23, 6, 6);
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            font-weight: bold;
+            background-color: #b6dbd0;
+            color: #1b0707;
+            margin: 20;
+            padding: 10;
+        }
+
+        div {
+            max-width: 1000px;
+            margin: 80px auto;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            background-color: #65346d;
+        }
+
+        button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #0f7774;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #063b17;
+        }
+
+        input[type="file"] {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #df1313;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+
+        #loadingStatus {
+            font-family: 'Arial', sans-serif;
+            margin-top: 60px;
+            font-weight: bold;
+            text-align: center;
+            background-color: #bec7e7;
+            background-color: #b6dbd0;
+            border: 1px solid #e71616;
+        }
+
+        #imageContainer {
+            width: 200px; /* Adjusted width of the image container */
+            height: 40px; /* Adjusted height of the image container */
+            margin-top: 20px; /* Optional: Add some top margin */
+            background-color: #f1f2f3;
+            position: relative;
+        }
+
+
+        #home_buttons a {
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+
+</head>
+
+<body>
+    <img src="/Users/wangshuo/Desktop/Iteration.webflow/images/website-logo.png" width="50" height="50" id="logoImage">
+  
+    <h1> IKAT Identification Model</h1></a>
+    <div id="loadingStatus">Would you like to upload from files or use the webcam?</div>
+    <div>
+        <div id="imageContainer">
+            <a href="2_Image-Upload.html">Upload the Image</a>
+        </div>
+        <div id="imageContainer">
+            <a href="3_Image-Webcam.html">Use the Webcam</a>
+        </div>
+    </div>
+    
+
+</body>
